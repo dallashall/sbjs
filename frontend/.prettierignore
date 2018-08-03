@@ -1,0 +1,5 @@
+dist
+node_modules
+.prettierrc.js
+jest.config.js
+docs

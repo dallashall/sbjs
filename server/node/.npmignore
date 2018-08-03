@@ -1,0 +1,12 @@
+coverage
+dist
+node_modules
+src/__tests__
+.babelrc
+.eslintrc
+.gitignore
+.pretteirignore
+jest.config.js
+prettierrc
+webpack.config.js
+docs
