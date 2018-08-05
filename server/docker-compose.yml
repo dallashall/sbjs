@@ -1,0 +1,18 @@
+version: '3'
+services:
+  node_one:
+    build: ./node
+    stdin_open: true
+    depends_on:
+      - redis
+  redis:
+    build: ./redis
+  nginx:
+    build: ./nginx
+    ports:
+      # Port 3000 will serve our static assets
+      - "3330:3333"
+      # Port 8080 will forward to our node server[s]
+      - "8080:80"
+    depends_on:
+      - node_one

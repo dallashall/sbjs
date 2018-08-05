@@ -1,0 +1,3 @@
+export const PLACE_PLAYER = 'PLACE_PLAYER';
+export const REMOVE_PLAYER = 'REMOVE_PLAYER';
+export const HYDRATE_PLAYERS = 'HYDRATE_PLAYERS';
