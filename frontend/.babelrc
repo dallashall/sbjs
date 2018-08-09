@@ -4,6 +4,6 @@
     "transform-object-rest-spread"
   ],
   "presets": [
-    "env"
+    "env", "react"
   ]
 }

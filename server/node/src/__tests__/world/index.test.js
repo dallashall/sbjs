@@ -5,7 +5,7 @@ describe('World', () => {
 
   beforeEach(() => {
     world = World.build({ width: 75, height: 100 });
-  })
+  });
   describe('build/new', () => {
     it('creates a 2D array', () => {
       expect(world.board).toBeInstanceOf(Array);
@@ -31,22 +31,33 @@ describe('World', () => {
   describe('methods', () => {
     it('returns objects, given coordinates', () => {
       expect(world.find({ x: 2, y: 3 })).toBe(null);
-      world.board[3][2] = "1";
-      expect(world.find({ x: 2, y: 3 })).toBe("1");
+      world.board[3][2] = '1';
+      expect(world.find({ x: 2, y: 3 })).toBe('1');
     });
 
     it('places an object', () => {
       const coordinates = { x: 5, y: 7 };
       expect(world.find(coordinates)).toBe(null);
-      world.place(coordinates, "1");
-      expect(world.find(coordinates)).toBe("1");
+      world.place(coordinates, '1');
+      expect(world.find(coordinates)).toBe('1');
     });
 
     it('checks if a space is empty', () => {
       const coordinates = { x: 8, y: 9 };
       expect(world.isEmpty(coordinates)).toBe(true);
-      world.place(coordinates, "1");
+      world.place(coordinates, '1');
       expect(world.isEmpty(coordinates)).toBe(false);
+    });
+
+    it('considers a space outside the world as non-empty', () => {
+      const coord1 = { x: -1, y: 9 };
+      const coord2 = { x: 1, y: -1 };
+      const coord3 = { x: 75, y: 9 };
+      const coord4 = { x: 1, y: 100 };
+      expect(world.isEmpty(coord1)).toBe(false);
+      expect(world.isEmpty(coord2)).toBe(false);
+      expect(world.isEmpty(coord3)).toBe(false);
+      expect(world.isEmpty(coord4)).toBe(false);
     });
 
     it('moves object from one space to another', () => {

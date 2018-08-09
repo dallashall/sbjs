@@ -118,16 +118,16 @@ module.exports = {
   // setupFiles: [],
 
   // The path to a module that runs some code to configure or set up the testing framework before each test
-  // setupTestFrameworkScriptFile: null,
+  setupTestFrameworkScriptFile: './setupTests.js',
 
   // A list of paths to snapshot serializer modules Jest should use for snapshot testing
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  testEnvironment: "node",
+  testEnvironment: "jsdom",
 
   // Options that will be passed to the testEnvironment
-  // testEnvironmentOptions: {},
+  testEnvironmentOptions: {},
 
   // Adds a location field to test results
   // testLocationInResults: false,
@@ -153,7 +153,7 @@ module.exports = {
   // testRunner: "jasmine2",
 
   // This option sets the URL for the jsdom environment. It is reflected in properties such as location.href
-  // testURL: "about:blank",
+  testURL: 'http://localhost',
 
   // Setting this value to "fake" allows the use of fake timers for functions such as "setTimeout"
   // timers: "real",

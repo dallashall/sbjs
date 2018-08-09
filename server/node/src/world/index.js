@@ -9,9 +9,17 @@ const buildBoard = function buildBoard({ width, height }) {
 class World {
   constructor(board) {
     this.board = board;
+    this.height = board.length;
+    this.width = board[0].length;
   }
 
   find({ x, y }) {
+    if (
+      x >= this.width
+      || x < 0
+      || y >= this.height
+      || y < 0
+    ) return false;
     return this.board[y][x];
   }
 
@@ -20,7 +28,7 @@ class World {
   }
 
   isEmpty(coordinates) {
-    return !this.find(coordinates);
+    return this.find(coordinates) === null;
   }
 
   move({ x: x1, y: y1 }, { x: x2, y: y2 }) {
