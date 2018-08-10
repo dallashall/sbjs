@@ -12,9 +12,9 @@ const Player = ({ x = 0, y = 0, dir = 'D' }) => {
       top: 0,
       left: 0,
       transition: 'transform 0.2s ease-in-out',
-    }} 
+    }}
     />
-  )
-}
+  );
+};
 
 export default Player;

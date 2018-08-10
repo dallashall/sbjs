@@ -8,6 +8,5 @@ describe('Board', () => {
     console.log(board.find('div')[0]);
     const element = board.find('div');
     expect(element).toBeDefined();
-
   });
 });

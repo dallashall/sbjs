@@ -20010,28 +20010,24 @@ var movements = {
     var x = _ref.x,
         y = _ref.y,
         dir = _ref.dir;
-
     return dir === 'L' ? { x: x - distance, y: y } : { dir: 'L' };
   },
   R: function R(_ref2) {
     var x = _ref2.x,
         y = _ref2.y,
         dir = _ref2.dir;
-
     return dir === 'R' ? { x: x + distance, y: y } : { dir: 'R' };
   },
   U: function U(_ref3) {
     var x = _ref3.x,
         y = _ref3.y,
         dir = _ref3.dir;
-
     return dir === 'U' ? { x: x, y: y - distance } : { dir: 'U' };
   },
   D: function D(_ref4) {
     var x = _ref4.x,
         y = _ref4.y,
         dir = _ref4.dir;
-
     return dir === 'D' ? { x: x, y: y + distance } : { dir: 'D' };
   }
 };
@@ -20068,35 +20064,42 @@ var Board = function (_Component) {
   }, {
     key: 'render',
     value: function render() {
+      var _state = this.state,
+          width = _state.width,
+          height = _state.height,
+          x = _state.x,
+          y = _state.y,
+          dir = _state.dir;
+
       return _react2.default.createElement(
         'div',
         { style: {
-            width: this.state.width,
-            height: this.state.height,
+            width: width,
+            height: height,
             backgroundColor: '#22AA88'
           }
         },
         _react2.default.createElement(
           'button',
-          { onClick: this.move('L') },
+          { type: 'button', onClick: this.move('L') },
           'Left'
         ),
         _react2.default.createElement(
           'button',
-          { onClick: this.move('R') },
+          { type: 'button', onClick: this.move('R') },
           'Right'
         ),
         _react2.default.createElement(
           'button',
-          { onClick: this.move('U') },
+          { type: 'button', onClick: this.move('U') },
           'Up'
         ),
         _react2.default.createElement(
           'button',
-          { onClick: this.move('D') },
+          { type: 'button', onClick: this.move('D') },
           'Down'
         ),
-        _react2.default.createElement(_player2.default, { x: this.state.x, y: this.state.y, dir: this.state.dir })
+        _react2.default.createElement(_player2.default, { x: x, y: y, dir: dir })
       );
     }
   }]);
