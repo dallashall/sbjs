@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Player from '../player';
+import uuid from 'uuid/v1';
 
 const distance = 50;
 const movements = {
@@ -19,6 +20,19 @@ class Board extends Component {
       y: 0,
       dir: 'D',
     };
+  }
+
+  componentDidMount() {
+    const { connection } = this.props;
+    connection.connect({
+      user: {
+        id: uuid(),
+        username: 'testUser',
+      },
+      room: 'testRoom'
+    });
+    this.socket = connection.socket;
+    this.socket.on('action', msg => console.log('msg', msg));
   }
 
   move(dir) {

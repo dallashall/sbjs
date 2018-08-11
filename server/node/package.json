@@ -21,7 +21,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "webpack:dev": "NODE_ENV=development webpack -w"
+    "webpack:dev": "NODE_ENV=development webpack -w",
+    "start": "node dist/index.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

@@ -4,7 +4,7 @@ const webpackConfig = {
   entry: './src/index.js',
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, '..', 'server', 'nginx', 'www', 'js')
   },
   mode: process.env.NODE_ENV ? 'production' : 'development',
   devtool: process.env.NODE_ENV ? 'eval' : 'source-maps',
