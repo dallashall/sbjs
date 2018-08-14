@@ -18,7 +18,6 @@ class Menu extends Component {
   }
 
   onSubmit = () => {
-    console.log(this.state);
   }
 
   render() {

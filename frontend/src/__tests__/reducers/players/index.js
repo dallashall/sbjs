@@ -2,14 +2,14 @@ import {
   PLACE_PLAYER,
   REMOVE_PLAYER,
   HYDRATE_PLAYERS,
-} from '../../actions/players';
+} from '../../../actions/players';
 
 const playersReducer = (players = {}, action) => {
   switch (action.type) {
     case PLACE_PLAYER:
       return {
         ...players,
-        [action.user.id]: action.user,
+        [action.user.id]: Object.assign({}, players[action.user.id] || {}, action.user),
       };
     case REMOVE_PLAYER: {
       const nextState = { ...players };

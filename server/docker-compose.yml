@@ -13,6 +13,6 @@ services:
       # Port 3000 will serve our static assets
       - "3000:3000"
       # Port 8080 will forward to our node server[s]
-      - "8080:80"
+      - "3001:80"
     depends_on:
       - node_one

@@ -5,7 +5,8 @@ import SocketIO from 'socket.io';
 import Redis from 'ioredis';
 
 import makeStore from './store';
-import { PLACE_PLAYER, HYDRATE_PLAYERS } from './actions/players';
+import { PLACE_PLAYER, HYDRATE_PLAYERS, REMOVE_PLAYER } from './actions/players';
+import World from './world';
 
 const redis = new Redis({
   host: 'redis',
@@ -18,15 +19,25 @@ const server = http.Server(app);
 const io = SocketIO(server);
 
 const getDispatchSave = async (room, action) => {
-  const preloadedState = await redis.get(room);
-  console.log(preloadedState);
-  const store = preloadedState ? makeStore(JSON.parse(preloadedState)) : makeStore();
-  console.log(store.getState());
-  store.dispatch(action);
-  console.log(store.getState());
+  const gameState = await redis.get(room);
+
+  let store;
+  let world;
+
+  if (gameState) {
+    const data = JSON.parse(gameState);
+    store = makeStore(data.preloadedState);
+    world = new World(data.board, store);
+  } else {
+    store = makeStore();
+    world = World.build({ width: 1000, height: 1000 }, store);
+  }
+
+  const act = world.act(action);
+
   const nextState = store.getState();
-  await redis.set(room, JSON.stringify(nextState));
-  return nextState;
+  await redis.set(room, JSON.stringify({ preloadedState: nextState, board: world.board }));
+  return act;
 };
 
 io.on('connection', async (socket) => {
@@ -35,11 +46,22 @@ io.on('connection', async (socket) => {
   console.log(`New connection to: ${room}: ${user.username}`);
 
   const placePlayer = { type: PLACE_PLAYER, user };
-  const players = await getDispatchSave(room, placePlayer);
-  console.log('players', players);
+  const act = await getDispatchSave(room, placePlayer);
 
-  socket.emit('action', { type: HYDRATE_PLAYERS, players });
+  socket.emit('action', act);
   socket.to(room).emit('action', placePlayer);
+
+  socket.on('disconnect', async () => {
+    const removePlayer = { type: REMOVE_PLAYER, user };
+    const action = await getDispatchSave(room, removePlayer);
+    if (action) socket.emit('action', action);
+  });
+
+  // Listen for individual actions
+  socket.on('action', async (actionString) => {
+    const validAction = await getDispatchSave(room, actionString);
+    if (validAction) io.to(room).emit('action', validAction);
+  });
 });
 
 server.listen(5000, () => {

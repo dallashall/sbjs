@@ -1,6 +1,7 @@
 import React from 'react';
 
-const Player = ({ x = 0, y = 0, dir = 'D' }) => {
+const Player = ({ player }) => {
+  const { x = 0, y = 0, dir = 'D' } = player;
   const translate = `translate(${x}px, ${y}px)`;
   return (
     <div style={{

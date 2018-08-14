@@ -7,7 +7,7 @@ class Connection {
   }
 
   connect(query) {
-    this.socket = io('http://localhost:8080', {
+    this.socket = io('http://192.168.0.3:3001/', {
       query: {
         jsonString: JSON.stringify(query),
       }

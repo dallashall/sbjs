@@ -9,7 +9,7 @@ const playersReducer = (players = {}, action) => {
     case PLACE_PLAYER:
       return {
         ...players,
-        [action.user.id]: Object.assign({}, players[action.user.id] || {}, action.user),
+        [action.user.id]: action.user,
       };
     case REMOVE_PLAYER: {
       const nextState = { ...players };
