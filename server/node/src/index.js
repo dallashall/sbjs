@@ -60,7 +60,6 @@ io.on('connection', async (socket) => {
 
   // Listen for individual actions
   socket.on('action', async (actionString) => {
-    console.log(actionString);
     const validAction = await getDispatchSave(room, actionString);
     if (validAction) io.to(room).emit('action', validAction);
   });
