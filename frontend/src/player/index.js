@@ -2,7 +2,7 @@ import React from 'react';
 
 const Player = ({ player }) => {
   const { x = 0, y = 0, dir = 'D' } = player;
-  const translate = `translate(${x}px, ${y}px)`;
+  const translate = `translate(${x * 50}px, ${y * 50}px)`;
   return (
     <div style={{
       width: 50,

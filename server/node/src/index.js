@@ -30,7 +30,7 @@ const getDispatchSave = async (room, action) => {
     world = new World(data.board, store);
   } else {
     store = makeStore();
-    world = World.build({ width: 1000, height: 1000 }, store);
+    world = World.build({ width: 20, height: 20 }, store);
   }
 
   const act = world.act(action);
@@ -49,16 +49,18 @@ io.on('connection', async (socket) => {
   const act = await getDispatchSave(room, placePlayer);
 
   socket.emit('action', act);
-  socket.to(room).emit('action', placePlayer);
+  socket.to(room).emit('action', { ...placePlayer, user: act.players[user.id] });
 
   socket.on('disconnect', async () => {
+    console.log('disconnect', user);
     const removePlayer = { type: REMOVE_PLAYER, user };
     const action = await getDispatchSave(room, removePlayer);
-    if (action) socket.emit('action', action);
+    if (action) socket.to(room).emit('action', action);
   });
 
   // Listen for individual actions
   socket.on('action', async (actionString) => {
+    console.log(actionString);
     const validAction = await getDispatchSave(room, actionString);
     if (validAction) io.to(room).emit('action', validAction);
   });

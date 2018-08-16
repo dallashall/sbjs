@@ -33016,7 +33016,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var distance = 50;
+var distance = 1;
 var movements = {
   L: function L(_ref) {
     var x = _ref.x,
@@ -33105,38 +33105,64 @@ var Board = function (_Component) {
       var _state = this.state,
           width = _state.width,
           height = _state.height;
-      var players = this.props.players;
+      var _props3 = this.props,
+          currentPlayer = _props3.currentPlayer,
+          players = _props3.players;
 
+      var me = players[currentPlayer.id] || {};
       return _react2.default.createElement(
         'div',
         { style: {
-            width: width,
-            height: height,
-            backgroundColor: '#22AA88'
+            width: '100vw',
+            height: '100vh',
+            overflow: 'hidden',
+            position: 'absolute'
           }
         },
-        Object.keys(players).map(function (id) {
-          return _react2.default.createElement(_player2.default, { player: players[id], key: id });
-        }),
         _react2.default.createElement(
-          'button',
-          { type: 'button', onClick: this.move('L') },
-          'Left'
+          'div',
+          { style: {
+              width: width,
+              height: height,
+              backgroundColor: '#22AA88',
+              transform: 'translate(calc(50vw - ' + me.x * 50 + 'px), calc(30vh - ' + me.y * 50 + 'px))',
+              position: 'absolute',
+              transition: 'transform 0.2s ease-in-out'
+            }
+          },
+          Object.keys(players).map(function (id) {
+            return _react2.default.createElement(_player2.default, { player: players[id], key: id });
+          })
         ),
         _react2.default.createElement(
-          'button',
-          { type: 'button', onClick: this.move('R') },
-          'Right'
-        ),
-        _react2.default.createElement(
-          'button',
-          { type: 'button', onClick: this.move('U') },
-          'Up'
-        ),
-        _react2.default.createElement(
-          'button',
-          { type: 'button', onClick: this.move('D') },
-          'Down'
+          'div',
+          { style: {
+              position: 'absolute',
+              bottom: '100px',
+              left: '20px',
+              width: '200px',
+              height: '200px'
+            } },
+          _react2.default.createElement('button', {
+            type: 'button',
+            onClick: this.move('L'),
+            style: { width: '60px', height: '60px', top: 'calc(50% - 30px)', left: '0px', position: 'absolute' }
+          }),
+          _react2.default.createElement('button', {
+            type: 'button',
+            onClick: this.move('R'),
+            style: { width: '60px', height: '60px', top: 'calc(50% - 30px)', right: '0px', position: 'absolute' }
+          }),
+          _react2.default.createElement('button', {
+            type: 'button',
+            onClick: this.move('U'),
+            style: { width: '60px', height: '60px', left: 'calc(50% - 30px)', top: '0px', position: 'absolute' }
+          }),
+          _react2.default.createElement('button', {
+            type: 'button',
+            onClick: this.move('D'),
+            style: { width: '60px', height: '60px', left: 'calc(50% - 30px)', bottom: '0px', position: 'absolute' }
+          })
         )
       );
     }
@@ -33272,7 +33298,7 @@ var Player = function Player(_ref) {
       _player$dir = player.dir,
       dir = _player$dir === undefined ? 'D' : _player$dir;
 
-  var translate = 'translate(' + x + 'px, ' + y + 'px)';
+  var translate = 'translate(' + x * 50 + 'px, ' + y * 50 + 'px)';
   return _react2.default.createElement('div', { style: {
       width: 50,
       height: 50,

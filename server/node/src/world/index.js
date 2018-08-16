@@ -59,10 +59,10 @@ class World {
   }
 
   remove(user) {
-    const { x, y } = user;
+    const { x, y } = this.store.getState().players[user.id];
     this.board[y][x] = null;
     const action = { type: REMOVE_PLAYER, user };
-    this.state.dispatch(action);
+    this.store.dispatch(action);
     return action;
   }
 
@@ -78,11 +78,12 @@ class World {
         }
         if (this.isEmpty(user)) {
           this.move(oldUser, user);
+          const action = { type, user };
+          this.store.dispatch(action);
           return { type, user };
         }
         if (this.find(user) === user.id) {
-          this.move(oldUser, user);
-          return { type, user };
+          return this.place(user, user);
         }
         return false;
       }
