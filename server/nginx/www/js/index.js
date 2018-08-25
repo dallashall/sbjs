@@ -33107,7 +33107,6 @@ var Board = function (_Component) {
       });
       this.socket = connection.socket;
       this.socket.on('action', function (action) {
-        console.log('recieved', action);
         act(action);
       });
     }

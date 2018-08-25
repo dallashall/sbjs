@@ -34,7 +34,6 @@ class Board extends Component {
     });
     this.socket = connection.socket;
     this.socket.on('action', (action) => {
-      console.log('recieved', action);
       act(action);
     });
   }

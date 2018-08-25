@@ -58,8 +58,10 @@ io.on('connection', async (socket) => {
 
   socket.on('disconnect', async () => {
     console.log('disconnect', user);
-    const removePlayer = { type: REMOVE_PLAYER, user };
-    await dispatchSave(room, await getWorld(room), removePlayer);
+    const world = await getWorld(room);
+    const userToRemove = world.store.getState().players[user.id];
+    const removePlayer = { type: REMOVE_PLAYER, user: userToRemove };
+    await dispatchSave(room, world, removePlayer);
     socket.to(room).emit('action', removePlayer);
   });
 
