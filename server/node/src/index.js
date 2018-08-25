@@ -5,8 +5,8 @@ import SocketIO from 'socket.io';
 import Redis from 'ioredis';
 
 import makeStore from './store';
-import { PLACE_PLAYER, HYDRATE_PLAYERS, REMOVE_PLAYER } from './actions/players';
-import World from './world';
+import { PLACE_PLAYER, HYDRATE_PLAYERS, REMOVE_PLAYER, MOVE_PLAYER } from './actions/players';
+import World from './world/v2';
 
 const redis = new Redis({
   host: 'redis',
@@ -18,26 +18,18 @@ const app = express();
 const server = http.Server(app);
 const io = SocketIO(server);
 
-const getDispatchSave = async (room, action) => {
+const getWorld = async (room) => {
   const gameState = await redis.get(room);
+  const store = gameState ? makeStore(JSON.parse(gameState)) : makeStore();
+  return new World(store);
+};
 
-  let store;
-  let world;
-
-  if (gameState) {
-    const data = JSON.parse(gameState);
-    store = makeStore(data.preloadedState);
-    world = new World(data.board, store);
-  } else {
-    store = makeStore();
-    world = World.build({ width: 20, height: 20 }, store);
-  }
-
-  const act = world.act(action);
-
-  const nextState = store.getState();
-  await redis.set(room, JSON.stringify({ preloadedState: nextState, board: world.board }));
-  return act;
+const dispatchSave = async (room, world, action) => {
+  world.store.dispatch(action);
+  const state = world.store.getState();
+  redis.set(room, JSON.stringify(state));
+  console.log(state.world);
+  return state;
 };
 
 io.on('connection', async (socket) => {
@@ -45,23 +37,45 @@ io.on('connection', async (socket) => {
   socket.join(room);
   console.log(`New connection to: ${room}: ${user.username}`);
 
-  const placePlayer = { type: PLACE_PLAYER, user };
-  const act = await getDispatchSave(room, placePlayer);
+  const initialWorld = await getWorld(room);
 
-  socket.emit('action', act);
-  socket.to(room).emit('action', { ...placePlayer, user: act.players[user.id] });
+  const { x, y } = initialWorld.initialCoordinates();
+  const placePlayer = {
+    type: PLACE_PLAYER,
+    user: {
+      ...user,
+      x,
+      y,
+    },
+  };
+
+  const { players } = await dispatchSave(room, initialWorld, placePlayer);
+  const hydratePlayers = { type: HYDRATE_PLAYERS, players };
+
+  socket.emit('action', hydratePlayers);
+  console.log('emitted:', hydratePlayers);
+  socket.to(room).emit('action', placePlayer);
 
   socket.on('disconnect', async () => {
     console.log('disconnect', user);
     const removePlayer = { type: REMOVE_PLAYER, user };
-    const action = await getDispatchSave(room, removePlayer);
-    if (action) socket.to(room).emit('action', action);
+    await dispatchSave(room, await getWorld(room), removePlayer);
+    socket.to(room).emit('action', removePlayer);
   });
 
   // Listen for individual actions
-  socket.on('action', async (actionString) => {
-    const validAction = await getDispatchSave(room, actionString);
-    if (validAction) io.to(room).emit('action', validAction);
+  socket.on('action', async (action) => {
+    console.log('action', action);
+    const world = await getWorld(room);
+    let valid = true;
+    if (action.type === MOVE_PLAYER) {
+      valid = world.isEmpty(action.next);
+    }
+    if (valid) {
+      console.log('valid action:', action);
+      await dispatchSave(room, world, action);
+      io.to(room).emit('action', action);
+    }
   });
 });
 

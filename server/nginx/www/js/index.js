@@ -32963,13 +32963,25 @@ Object.defineProperty(exports, "__esModule", {
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var PLACE_PLAYER = exports.PLACE_PLAYER = 'PLACE_PLAYER';
+var MOVE_PLAYER = exports.MOVE_PLAYER = 'MOVE_PLAYER';
 var REMOVE_PLAYER = exports.REMOVE_PLAYER = 'REMOVE_PLAYER';
 var HYDRATE_PLAYERS = exports.HYDRATE_PLAYERS = 'HYDRATE_PLAYERS';
 
 var movePlayer = exports.movePlayer = function movePlayer(user, coordinates) {
-  return {
+  return coordinates.dir ? {
     type: PLACE_PLAYER,
     user: _extends({}, user, coordinates)
+  } : {
+    type: MOVE_PLAYER,
+    prev: user,
+    next: _extends({}, user, coordinates)
+  };
+};
+
+var turnPlayer = exports.turnPlayer = function turnPlayer(user) {
+  return {
+    type: PLACE_PLAYER,
+    user: user
   };
 };
 
@@ -33052,12 +33064,28 @@ var Board = function (_Component) {
 
     var _this = _possibleConstructorReturn(this, (Board.__proto__ || Object.getPrototypeOf(Board)).call(this));
 
+    _this.requestFullScreen = function (e) {
+      e.preventDefault();
+      var elem = document.getElementById('game');
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      }
+      _this.setState({ fullScreen: true });
+    };
+
     _this.state = {
       width: 1000,
       height: 1000,
       x: 0,
       y: 0,
-      dir: 'D'
+      dir: 'D',
+      fullScreen: false
     };
     return _this;
   }
@@ -33079,6 +33107,7 @@ var Board = function (_Component) {
       });
       this.socket = connection.socket;
       this.socket.on('action', function (action) {
+        console.log('recieved', action);
         act(action);
       });
     }
@@ -33112,57 +33141,78 @@ var Board = function (_Component) {
       var me = players[currentPlayer.id] || {};
       return _react2.default.createElement(
         'div',
-        { style: {
-            width: '100vw',
-            height: '100vh',
-            overflow: 'hidden',
-            position: 'absolute'
-          }
+        {
+          id: 'game'
         },
         _react2.default.createElement(
           'div',
-          { style: {
-              width: width,
-              height: height,
-              backgroundColor: '#22AA88',
-              transform: 'translate(calc(50vw - ' + me.x * 50 + 'px), calc(30vh - ' + me.y * 50 + 'px))',
-              position: 'absolute',
-              transition: 'transform 0.2s ease-in-out'
-            }
-          },
-          Object.keys(players).map(function (id) {
-            return _react2.default.createElement(_player2.default, { player: players[id], key: id });
-          })
+          { className: 'game-screen' },
+          _react2.default.createElement(
+            'div',
+            { style: {
+                width: width,
+                height: height,
+                backgroundColor: '#22AA88',
+                transform: 'translate(calc(50vw - ' + me.x * 50 + 'px), calc(30vh - ' + me.y * 50 + 'px))',
+                position: 'absolute',
+                transition: 'transform 0.2s ease-in-out'
+              }
+            },
+            Object.keys(players).map(function (id) {
+              return _react2.default.createElement(_player2.default, { player: players[id], key: id });
+            })
+          ),
+          _react2.default.createElement('div', { className: 'game-screen__shadow' }),
+          !this.state.fullScreen && _react2.default.createElement(
+            'button',
+            {
+              type: 'button',
+              className: 'btn-play',
+              onClick: this.requestFullScreen
+            },
+            'Play!'
+          )
         ),
+        _react2.default.createElement('div', { className: 'game__bottom' }),
         _react2.default.createElement(
           'div',
-          { style: {
-              position: 'absolute',
-              bottom: '100px',
-              left: '20px',
-              width: '200px',
-              height: '200px'
-            } },
+          { className: 'square-btn__container' },
           _react2.default.createElement('button', {
             type: 'button',
             onClick: this.move('L'),
-            style: { width: '60px', height: '60px', top: 'calc(50% - 30px)', left: '0px', position: 'absolute' }
+            className: 'btn-square btn-square__left',
+            style: { width: '40px', height: '40px', top: '40px', left: '0px', position: 'absolute', borderRadius: '2px 0px 0px 2px', boxShadow: '2px 2px 5px black' }
           }),
           _react2.default.createElement('button', {
             type: 'button',
             onClick: this.move('R'),
-            style: { width: '60px', height: '60px', top: 'calc(50% - 30px)', right: '0px', position: 'absolute' }
+            className: 'btn-square btn-square__right'
           }),
           _react2.default.createElement('button', {
             type: 'button',
             onClick: this.move('U'),
-            style: { width: '60px', height: '60px', left: 'calc(50% - 30px)', top: '0px', position: 'absolute' }
+            className: 'btn-square btn-square__up'
           }),
           _react2.default.createElement('button', {
             type: 'button',
             onClick: this.move('D'),
-            style: { width: '60px', height: '60px', left: 'calc(50% - 30px)', bottom: '0px', position: 'absolute' }
-          })
+            className: 'btn-square btn-square__down'
+          }),
+          _react2.default.createElement('div', { className: 'btn-square__center' })
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'round-btn__container' },
+          _react2.default.createElement(
+            'button',
+            { type: 'button', className: 'btn-round btn-a' },
+            'A'
+          ),
+          _react2.default.createElement(
+            'button',
+            { type: 'button', className: 'btn-round btn-b' },
+            'B'
+          )
         )
       );
     }
@@ -33303,7 +33353,7 @@ var Player = function Player(_ref) {
       width: 50,
       height: 50,
       transform: translate,
-      backgroundImage: 'url(\'./images/' + dir + '.svg\')',
+      backgroundImage: 'url(\'./images/' + dir + '.png\')',
       position: 'absolute',
       top: 0,
       left: 0,
@@ -33408,6 +33458,8 @@ var playersReducer = function playersReducer() {
   var action = arguments[1];
 
   switch (action.type) {
+    case _players.MOVE_PLAYER:
+      return _extends({}, players, _defineProperty({}, action.next.id, action.next));
     case _players.PLACE_PLAYER:
       return _extends({}, players, _defineProperty({}, action.user.id, action.user));
     case _players.REMOVE_PLAYER:

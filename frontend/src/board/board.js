@@ -19,6 +19,7 @@ class Board extends Component {
       x: 0,
       y: 0,
       dir: 'D',
+      fullScreen: false,
     };
   }
 
@@ -33,8 +34,24 @@ class Board extends Component {
     });
     this.socket = connection.socket;
     this.socket.on('action', (action) => {
+      console.log('recieved', action);
       act(action);
     });
+  }
+
+  requestFullScreen = (e) => {
+    e.preventDefault();
+    const elem = document.getElementById('game');
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      elem.msRequestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen();
+    }
+    this.setState({ fullScreen: true });
   }
 
   move(dir) {
@@ -55,57 +72,70 @@ class Board extends Component {
     const { currentPlayer, players } = this.props;
     const me = players[currentPlayer.id] || {};
     return (
-      <div style={{
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-        position: 'absolute',
-      }}
+      <div
+        id="game"
       >
-        <div style={{
-          width,
-          height,
-          backgroundColor: '#22AA88',
-          transform: `translate(calc(50vw - ${me.x * 50}px), calc(30vh - ${me.y * 50}px))`,
-          position: 'absolute',
-          transition: 'transform 0.2s ease-in-out',
-        }}
-        >
-          {
-            Object.keys(players).map(id => <Player player={players[id]} key={id} />)
-          }
+        <div className="game-screen">
+          <div style={{
+            width,
+            height,
+            backgroundColor: '#22AA88',
+            transform: `translate(calc(50vw - ${me.x * 50}px), calc(30vh - ${me.y * 50}px))`,
+            position: 'absolute',
+            transition: 'transform 0.2s ease-in-out',
+          }}
+          >
+            {
+              Object.keys(players).map(id => <Player player={players[id]} key={id} />)
+            }
 
+          </div>
+          <div className="game-screen__shadow" />
+          {
+            !this.state.fullScreen &&
+            (
+              <button
+                type="button"
+                className="btn-play"
+                onClick={this.requestFullScreen}
+              >
+                Play!
+              </button>
+            )
+          }
         </div>
-        <div style={{
-          position: 'absolute',
-          bottom: '100px',
-          left: '20px',
-          width: '200px',
-          height: '200px',
-        }}>
+        <div className="game__bottom" />
+
+        <div className="square-btn__container" >
           <button
             type="button"
             onClick={this.move('L')}
-            style={{ width: '60px', height: '60px', top: 'calc(50% - 30px)', left: '0px', position: 'absolute' }}
+            className="btn-square btn-square__left"
+            style={{ width: '40px', height: '40px', top: '40px', left: '0px', position: 'absolute', borderRadius: '2px 0px 0px 2px', boxShadow: '2px 2px 5px black' }}
           />
 
           <button
             type="button"
             onClick={this.move('R')}
-            style={{ width: '60px', height: '60px', top: 'calc(50% - 30px)', right: '0px', position: 'absolute' }}
+            className="btn-square btn-square__right"
           />
 
           <button
             type="button"
             onClick={this.move('U')}
-            style={{ width: '60px', height: '60px', left: 'calc(50% - 30px)', top: '0px', position: 'absolute' }}
+            className="btn-square btn-square__up"
           />
 
           <button
             type="button"
             onClick={this.move('D')}
-            style={{ width: '60px', height: '60px', left: 'calc(50% - 30px)', bottom: '0px', position: 'absolute' }}
+            className="btn-square btn-square__down"
           />
+          <div className="btn-square__center" />
+        </div>
+        <div className="round-btn__container">
+          <button type="button" className="btn-round btn-a">A</button>
+          <button type="button" className="btn-round btn-b">B</button>
         </div>
       </div>
     );

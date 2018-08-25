@@ -8,7 +8,7 @@ const Player = ({ player }) => {
       width: 50,
       height: 50,
       transform: translate,
-      backgroundImage: `url('./images/${dir}.svg')`,
+      backgroundImage: `url('./images/${dir}.png')`,
       position: 'absolute',
       top: 0,
       left: 0,

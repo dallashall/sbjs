@@ -2,6 +2,7 @@ import RootReducer from '../../reducers';
 
 const defaultState = {
   players: {},
+  world: {},
 };
 
 describe('RootReducer', () => {

@@ -2,10 +2,16 @@ import {
   PLACE_PLAYER,
   REMOVE_PLAYER,
   HYDRATE_PLAYERS,
+  MOVE_PLAYER,
 } from '../../actions/players';
 
 const playersReducer = (players = {}, action) => {
   switch (action.type) {
+    case MOVE_PLAYER:
+      return {
+        ...players,
+        [action.next.id]: action.next,
+      };
     case PLACE_PLAYER:
       return {
         ...players,
