@@ -86,7 +86,7 @@ class Board extends Component {
           <div style={{
             width,
             height,
-            backgroundColor: '#22AA88',
+            backgroundImage: 'url("./images/background.png")',
             transform: `translate(calc(50vw - ${me.x * 50}px - 25px), calc(30vh - ${me.y * 50}px))`,
             position: 'absolute',
             transition: 'transform 0.2s ease-in-out',
