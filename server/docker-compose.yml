@@ -11,8 +11,8 @@ services:
     build: ./nginx
     ports:
       # Port 3000 will serve our static assets
+      - "80:80"
+      # Port 3000 exposes our socket.io server
       - "3000:3000"
-      # Port 8080 will forward to our node server[s]
-      - "3001:80"
     depends_on:
       - node_one

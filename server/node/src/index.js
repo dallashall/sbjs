@@ -81,6 +81,8 @@ io.on('connection', async (socket) => {
   });
 });
 
-server.listen(5000, () => {
-  console.log('Node server is running');
+const port = 3000;
+
+server.listen(port, () => {
+  console.log(`Node server is running at ${port}`);
 });

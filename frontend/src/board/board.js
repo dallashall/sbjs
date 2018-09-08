@@ -79,7 +79,7 @@ class Board extends Component {
             width,
             height,
             backgroundColor: '#22AA88',
-            transform: `translate(calc(50vw - ${me.x * 50}px), calc(30vh - ${me.y * 50}px))`,
+            transform: `translate(calc(50vw - ${me.x * 50}px - 25px), calc(30vh - ${me.y * 50}px))`,
             position: 'absolute',
             transition: 'transform 0.2s ease-in-out',
           }}
