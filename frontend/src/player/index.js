@@ -13,8 +13,13 @@ const Player = ({ player }) => {
       top: 0,
       left: 0,
       transition: 'transform 0.2s ease-in-out',
+      textAlign: 'center',
     }}
-    />
+    >
+      <p className="player-name">
+        {player.username}
+      </p>
+    </div>
   );
 };
 

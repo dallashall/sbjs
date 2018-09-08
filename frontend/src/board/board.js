@@ -11,8 +11,8 @@ const movements = {
 };
 
 class Board extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       width: 1000,
       height: 1000,
@@ -20,11 +20,20 @@ class Board extends Component {
       y: 0,
       dir: 'D',
       fullScreen: false,
+      player: this.props.currentPlayer,
     };
   }
 
-  componentDidMount() {
-    const { connection, currentPlayer, act } = this.props;
+  play = (e) => {
+    e.preventDefault();
+    this.props.setCurrentPlayer(this.state.player);
+    this.requestFullScreen();
+    this.connectToSocket();
+  }
+
+  connectToSocket() {
+    const { connection, act } = this.props;
+    const currentPlayer = this.state.player;
     connection.connect({
       user: {
         id: currentPlayer.id,
@@ -38,8 +47,7 @@ class Board extends Component {
     });
   }
 
-  requestFullScreen = (e) => {
-    e.preventDefault();
+  requestFullScreen() {
     const elem = document.getElementById('game');
     if (elem.requestFullscreen) {
       elem.requestFullscreen();
@@ -91,26 +99,31 @@ class Board extends Component {
           </div>
           <div className="game-screen__shadow" />
           {
-            !this.state.fullScreen &&
-            (
-              <button
-                type="button"
-                className="btn-play"
-                onClick={this.requestFullScreen}
-              >
+            !this.state.fullScreen
+            && (
+              <div className="btn-play">
+                <input type="text" placeholder="username" onChange={e => this.setState({ player: { ...this.state.player, username: e.target.value } })} />
+                <button
+                  type="button"
+                  onClick={this.play}
+                >
+
                 Play!
-              </button>
+                </button>
+              </div>
             )
           }
         </div>
         <div className="game__bottom" />
 
-        <div className="square-btn__container" >
+        <div className="square-btn__container">
           <button
             type="button"
             onClick={this.move('L')}
             className="btn-square btn-square__left"
-            style={{ width: '40px', height: '40px', top: '40px', left: '0px', position: 'absolute', borderRadius: '2px 0px 0px 2px', boxShadow: '2px 2px 5px black' }}
+            style={{
+              width: '40px', height: '40px', top: '40px', left: '0px', position: 'absolute', borderRadius: '2px 0px 0px 2px', boxShadow: '2px 2px 5px black'
+            }}
           />
 
           <button
@@ -133,8 +146,12 @@ class Board extends Component {
           <div className="btn-square__center" />
         </div>
         <div className="round-btn__container">
-          <button type="button" className="btn-round btn-a">A</button>
-          <button type="button" className="btn-round btn-b">B</button>
+          <button type="button" className="btn-round btn-a">
+          A
+          </button>
+          <button type="button" className="btn-round btn-b">
+          B
+          </button>
         </div>
       </div>
     );

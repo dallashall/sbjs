@@ -32994,6 +32994,13 @@ Object.defineProperty(exports, "__esModule", {
 /* eslint import/prefer-default-export:0 */
 var SET_CURRENT_PLAYER = exports.SET_CURRENT_PLAYER = 'SET_CURRENT_PLAYER';
 
+var setCurrentPlayer = exports.setCurrentPlayer = function setCurrentPlayer(user) {
+  return {
+    type: SET_CURRENT_PLAYER,
+    user: user
+  };
+};
+
 /***/ }),
 
 /***/ "./src/actions/players.js":
@@ -33058,6 +33065,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
@@ -33109,24 +33118,16 @@ var movements = {
 var Board = function (_Component) {
   _inherits(Board, _Component);
 
-  function Board() {
+  function Board(props) {
     _classCallCheck(this, Board);
 
-    var _this = _possibleConstructorReturn(this, (Board.__proto__ || Object.getPrototypeOf(Board)).call(this));
+    var _this = _possibleConstructorReturn(this, (Board.__proto__ || Object.getPrototypeOf(Board)).call(this, props));
 
-    _this.requestFullScreen = function (e) {
+    _this.play = function (e) {
       e.preventDefault();
-      var elem = document.getElementById('game');
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-      } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-      }
-      _this.setState({ fullScreen: true });
+      _this.props.setCurrentPlayer(_this.state.player);
+      _this.requestFullScreen();
+      _this.connectToSocket();
     };
 
     _this.state = {
@@ -33135,19 +33136,20 @@ var Board = function (_Component) {
       x: 0,
       y: 0,
       dir: 'D',
-      fullScreen: false
+      fullScreen: false,
+      player: _this.props.currentPlayer
     };
     return _this;
   }
 
   _createClass(Board, [{
-    key: 'componentDidMount',
-    value: function componentDidMount() {
+    key: 'connectToSocket',
+    value: function connectToSocket() {
       var _props = this.props,
           connection = _props.connection,
-          currentPlayer = _props.currentPlayer,
           act = _props.act;
 
+      var currentPlayer = this.state.player;
       connection.connect({
         user: {
           id: currentPlayer.id,
@@ -33159,6 +33161,21 @@ var Board = function (_Component) {
       this.socket.on('action', function (action) {
         act(action);
       });
+    }
+  }, {
+    key: 'requestFullScreen',
+    value: function requestFullScreen() {
+      var elem = document.getElementById('game');
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      }
+      this.setState({ fullScreen: true });
     }
   }, {
     key: 'move',
@@ -33180,6 +33197,8 @@ var Board = function (_Component) {
   }, {
     key: 'render',
     value: function render() {
+      var _this3 = this;
+
       var _state = this.state,
           width = _state.width,
           height = _state.height;
@@ -33213,13 +33232,19 @@ var Board = function (_Component) {
           ),
           _react2.default.createElement('div', { className: 'game-screen__shadow' }),
           !this.state.fullScreen && _react2.default.createElement(
-            'button',
-            {
-              type: 'button',
-              className: 'btn-play',
-              onClick: this.requestFullScreen
-            },
-            'Play!'
+            'div',
+            { className: 'btn-play' },
+            _react2.default.createElement('input', { type: 'text', placeholder: 'username', onChange: function onChange(e) {
+                return _this3.setState({ player: _extends({}, _this3.state.player, { username: e.target.value }) });
+              } }),
+            _react2.default.createElement(
+              'button',
+              {
+                type: 'button',
+                onClick: this.play
+              },
+              'Play!'
+            )
           )
         ),
         _react2.default.createElement('div', { className: 'game__bottom' }),
@@ -33230,7 +33255,9 @@ var Board = function (_Component) {
             type: 'button',
             onClick: this.move('L'),
             className: 'btn-square btn-square__left',
-            style: { width: '40px', height: '40px', top: '40px', left: '0px', position: 'absolute', borderRadius: '2px 0px 0px 2px', boxShadow: '2px 2px 5px black' }
+            style: {
+              width: '40px', height: '40px', top: '40px', left: '0px', position: 'absolute', borderRadius: '2px 0px 0px 2px', boxShadow: '2px 2px 5px black'
+            }
           }),
           _react2.default.createElement('button', {
             type: 'button',
@@ -33290,6 +33317,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
 
+var _currentPlayer = __webpack_require__(/*! ../actions/currentPlayer */ "./src/actions/currentPlayer.js");
+
 var _board = __webpack_require__(/*! ./board */ "./src/board/board.js");
 
 var _board2 = _interopRequireDefault(_board);
@@ -33309,6 +33338,9 @@ var mdtp = function mdtp(dispatch) {
   return {
     act: function act(action) {
       return dispatch(action);
+    },
+    setCurrentPlayer: function setCurrentPlayer(user) {
+      return dispatch((0, _currentPlayer.setCurrentPlayer)(user));
     }
   };
 };
@@ -33337,6 +33369,10 @@ var _v = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
 
 var _v2 = _interopRequireDefault(_v);
 
+var _redux = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
+
+var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+
 var _board = __webpack_require__(/*! ./board */ "./src/board/index.js");
 
 var _board2 = _interopRequireDefault(_board);
@@ -33345,17 +33381,15 @@ var _socket = __webpack_require__(/*! ./socket */ "./src/socket/index.js");
 
 var _socket2 = _interopRequireDefault(_socket);
 
-var _redux = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
-
-var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-
 var _reducers = __webpack_require__(/*! ./reducers */ "./src/reducers/index.js");
 
 var _reducers2 = _interopRequireDefault(_reducers);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var store = (0, _redux.createStore)(_reducers2.default, { currentPlayer: { id: (0, _v2.default)(), username: 'Bob' } });
+var store = (0, _redux.createStore)(_reducers2.default, {
+  currentPlayer: { id: (0, _v2.default)(), username: 'Bob' }
+});
 
 document.addEventListener('DOMContentLoaded', function () {
   var root = document.getElementById('root');
@@ -33398,17 +33432,26 @@ var Player = function Player(_ref) {
       dir = _player$dir === undefined ? 'D' : _player$dir;
 
   var translate = 'translate(' + x * 50 + 'px, ' + y * 50 + 'px)';
-  return _react2.default.createElement('div', { style: {
-      width: 50,
-      height: 50,
-      transform: translate,
-      backgroundImage: 'url(\'./images/' + dir + '.png\')',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      transition: 'transform 0.2s ease-in-out'
-    }
-  });
+  return _react2.default.createElement(
+    'div',
+    { style: {
+        width: 50,
+        height: 50,
+        transform: translate,
+        backgroundImage: 'url(\'./images/' + dir + '.png\')',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        transition: 'transform 0.2s ease-in-out',
+        textAlign: 'center'
+      }
+    },
+    _react2.default.createElement(
+      'p',
+      { className: 'player-name' },
+      player.username
+    )
+  );
 };
 
 exports.default = Player;
